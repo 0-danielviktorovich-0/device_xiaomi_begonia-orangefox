@@ -153,6 +153,14 @@ TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery/root/system/etc/recovery.fstab
 TARGET_USE_CUSTOM_LUN_FILE_PATH := /config/usb_gadget/g1/functions/mass_storage.0/lun.%d/file
 RECOVERY_SDCARD_ON_DATA := true
 TW_THEME := portrait_hdpi
+
+# T3-ADD: screenshots. TWRP mechanism = fb2png tool (Android.mk gates the
+# binary on this flag); the power+voldown combo -> "screenshot" GUI action is
+# present in the stock portrait_hdpi theme, and OrangeFox core additionally
+# hooks combo screenshots natively (gui.cpp -> screenshotImpl, saves to
+# Fox_Home/screenshots, /tmp fallback). gr_save_screenshot itself is always
+# compiled (minuitwrp/Android.bp).
+TW_INCLUDE_FB2PNG := true
 TW_Y_OFFSET := 80
 TW_H_OFFSET := -80
 TW_EXTRA_LANGUAGES := true

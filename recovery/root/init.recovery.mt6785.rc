@@ -55,3 +55,19 @@ on property:twrp.decrypt.done=true
     stop servicemanager
     stop hwservicemanager
 
+
+# Svarog gadget fix: duplicate kick for the adb composition. If the
+# hwservicemanager.ready trigger in init.recovery.usb.rc was played before
+# hwbinder was actually ready, the property re-set here is a no-op for init,
+# but if it had not fired yet this catches it.
+on property:hwservicemanager.ready=true
+    setprop sys.usb.config adb
+
+service svarog-gadget /system/bin/svarog-gadget.sh
+    user root
+    group root shell
+    oneshot
+    seclabel u:r:recovery:s0
+
+on boot
+    start svarog-gadget

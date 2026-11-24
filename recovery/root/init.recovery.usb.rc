@@ -8,6 +8,11 @@ on boot
     setprop sys.usb.configfs 1
     setprop sys.usb.ffs.aio_compat 1
     setprop vendor.usb.controller "musb-hdrc"
+    # Svarog gadget fix: guarantee the UDC name regardless of cmdline/LK.
+    # ro.boot.usbcontroller may be absent (warm reboot into recovery), which
+    # leaves every "write UDC ${sys.usb.controller}" writing nothing.
+    # mtu3 is aliased as musb-hdrc (drivers/usb/mtu3/mtu3_plat_v2.c).
+    setprop sys.usb.controller musb-hdrc
     setprop vendor.usb.acm_cnt 0
     setprop vendor.usb.acm_port0 ""
     setprop vendor.usb.acm_port1 ""
@@ -64,6 +69,9 @@ on property:sys.usb.config=adb
     start adbd
 
 on property:sys.usb.ffs.ready=1 && property:sys.usb.config=adb
+    # Svarog gadget fix: explicit rebind order — unbind before rebuilding
+    # the configuration, then bind below. Makes the trigger idempotent.
+    write /config/usb_gadget/g1/UDC "none"
     write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "adb"
     rm /config/usb_gadget/g1/configs/b.1/f1
     rm /config/usb_gadget/g1/configs/b.1/f2
